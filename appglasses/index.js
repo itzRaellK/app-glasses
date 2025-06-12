@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
     res.send('API de vridos está funcionando!')
 });
 
-// Route to save a order in the database
+// Route to save a order in database
 app.post('/orders', (req, res) => {
     const {
         order_name,
@@ -67,18 +67,24 @@ app.post('/orders', (req, res) => {
     });
 });
 
-// Route to search orders in the database
-app.get('/orders', (req, res) => {
-    const sql = 'SELECT * FROM orders';
+// Route to consult orders in database with order_name
+app.get('/orders/search', (req, res) => {
+    const {order_name} = req.query;
+    const sql = 'SELECT * FROM orders WHERE order_name = ?';
 
-    db.all(sql, [], (err, rows) => {
+    if (!order_name) {
+        return res.status(400).json({ error: 'order_name é obrigatório' });
+    }
+
+    db.all(sql, [order_name], (err, rows) => {
         if(err) {
-            console.error('Error! Search orders failed:', err.message);
+            console.error('Error! Consult order failed:', err.message);
             return res.status(500).json({error: err.message});
         }
         res.json(rows);
     });
 });
+
 
 // Start the server
 app.listen(port, () => {
